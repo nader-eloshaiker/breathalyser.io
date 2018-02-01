@@ -41,10 +41,17 @@ static const unsigned char PROGMEM logo16_glcd_bmp[] =
 //#endif
 
 
+// WiFi
+//-----
 char wifi_ssid[] = "NETGEAR63";
 char wifi_password[] = "chummyroad556";
+const char* host = "192.168.100.4";
+const int   port = 8080;
+const int   watchdog = 5000;
+unsigned long previousMillis = millis();
 
-
+// Pin Outs
+//---------
 const int AOUTpin=0;//the AOUT pin of the alcohol sensor goes into analog pin A0 of the arduino
 const int DOUTpin=8;//the DOUT pin of the alcohol sensor goes into digital pin D8 of the arduino
 
@@ -90,6 +97,10 @@ void setup() {
 }
 
 void loop() {
+
+  // Take an alcohol reading and display it
+  //---------------------------------------
+
   barValue = analogRead(AOUTpin);//reads the analaog value from the alcohol sensor's AOUT pin
   Serial.println(barValue);
   // text display tests
@@ -119,6 +130,43 @@ void loop() {
 
   display.display();
 
+
+  // Internet Connectivity
+  //----------------------
+
+   unsigned long currentMillis = millis();
+  if ( currentMillis - previousMillis > watchdog ) {
+    previousMillis = currentMillis;
+    WiFiClient client;
+ 
+    if (!client.connect(host, port)) {
+      Serial.println("connection failed");
+      return;
+    }
+    String url = "/ping?command=watchdog&uptime=";
+    url += String(millis());
+    url += "&ip=";
+    url += WiFi.localIP().toString();
+   
+    //This will send the request to the server
+    client.print(String("GET ") + url + " HTTP/1.1\r\n" +
+               "Host: " + host + "\r\n" +
+               "Connection: close\r\n\r\n");
+    unsigned long timeout = millis();
+    while (client.available() == 0) {
+      if (millis() - timeout > 5000) {
+        Serial.println(">>> Client Timeout !");
+        client.stop();
+        return;
+      }
+    }
+
+    // Read all the lines of the reply from server and print them to Serial
+    while(client.available()){
+      String line = client.readStringUntil('\r');
+      Serial.print(line);
+    }
+  }
 
   delay(1000);
 }
