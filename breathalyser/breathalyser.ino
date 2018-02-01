@@ -12,7 +12,7 @@ char wifi_password[] = "chummyroad556";
 
 const int AOUTpin=0;//the AOUT pin of the alcohol sensor goes into analog pin A0 of the arduino
 const int DOUTpin=8;//the DOUT pin of the alcohol sensor goes into digital pin D8 of the arduino
-const int ledPin=13;//the anode of the LED connects to digital pin D13 of the arduino
+//const int ledPin=13;//the anode of the LED connects to digital pin D13 of the arduino
 
 int barValue;
 >>>>>>> 4ac27fb209a636ca486ba48b02f4ac0c9ba37c2f
@@ -36,7 +36,7 @@ void setup() {
   Serial.println("Setup complete");
 
   pinMode(DOUTpin, INPUT);//sets the pin as an input to the arduino
-  pinMode(ledPin, OUTPUT);//sets the pin as an output of the arduino
+//  pinMode(ledPin, OUTPUT);//sets the pin as an output of the arduino
 }
 
 void loop() {
