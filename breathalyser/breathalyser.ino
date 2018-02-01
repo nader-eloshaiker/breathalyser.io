@@ -1,7 +1,7 @@
 #include <ESP8266WiFi.h>
 
-char wifi_ssid[] = "<SSID>";
-char wifi_password[] = "<PASSWORD>";
+char wifi_ssid[] = "NETGEAR63";
+char wifi_password[] = "chummyroad556";
 
 void setup() {
   Serial.begin(115200);
@@ -15,7 +15,7 @@ void setup() {
   Serial.println();
          
   Serial.print("WiFi connected to "); Serial.println(wifi_ssid);
-  Serial.print("IP address: "); Serial.print(WiFi.localIP());
+  Serial.print("IP address: "); Serial.println(WiFi.localIP());
   WiFi.printDiag(Serial);
 
   Serial.println();
