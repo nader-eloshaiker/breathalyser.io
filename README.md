@@ -3,7 +3,9 @@
 ## Sprout 17
 
 ### Contributors:
-Chris Carol
-Stuart Conway
-Morten Henriksen
-Lekha Ojha
+| Title     | Name          |
+|-----------|---------------|
+| Developer | Chris Carroll |
+| Architect | Stuart Conway |
+| Morten    | Henriksen     |
+| Lekha     | Ojha          |
