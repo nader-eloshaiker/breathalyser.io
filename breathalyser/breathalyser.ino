@@ -56,6 +56,17 @@ const int AOUTpin=0;//the AOUT pin of the alcohol sensor goes into analog pin A0
 const int DOUTpin=8;//the DOUT pin of the alcohol sensor goes into digital pin D8 of the arduino
 
 int barValue;
+int msgIndex;
+int stateChanged;
+
+// Drunk State
+//------------
+#define LEVEL0 0
+#define LEVEL1 1
+#define LEVEL2 2
+#define LEVEL3 3
+#define LEVEL4 4
+
 
 void setup() {
   Serial.begin(115200);
@@ -94,6 +105,9 @@ void setup() {
 
   // Clear the buffer.
   display.clearDisplay();
+
+  msgIndex = -1;
+  stateChanged = 0;
 }
 
 void loop() {
@@ -102,7 +116,39 @@ void loop() {
   //---------------------------------------
 
   barValue = analogRead(AOUTpin);//reads the analaog value from the alcohol sensor's AOUT pin
+  
+  if (barValue < 200) {
+    stateChanged = (msgIndex != LEVEL0) ? 1 : 0;
+    msgIndex = LEVEL0;
+    showMessage("Sober", stateChanged);
+  } else if (barValue >= 200 && barValue < 280) {
+    stateChanged = (msgIndex != LEVEL1) ? 1 : 0;
+    msgIndex = LEVEL1;
+    showMessage("Cheeky", stateChanged);
+  } else if (barValue >= 280 && barValue < 350) {
+    stateChanged = (msgIndex != LEVEL2) ? 1 : 0;
+    msgIndex = LEVEL2;
+    showMessage("Few Drinks", stateChanged);
+  } else if (barValue >= 350 && barValue < 450) {
+    stateChanged = (msgIndex != LEVEL3) ? 1 : 0;
+    msgIndex = LEVEL3;
+    showMessage("Boozed Up", stateChanged);
+  } else if(barValue > 450) {
+    stateChanged = (msgIndex != LEVEL4) ? 1 : 0;
+    msgIndex = LEVEL4;
+    showMessage("Flamable", stateChanged);
+  }
+
+  stateChanged = 0;
+
+  delay(1000);
+}
+
+void showMessage(char msg[], int stateChanged) {
+//  Serial.println("[debug]: stateChanged - " + String(stateChanged));
   Serial.println(barValue);
+  Serial.println(msg);
+
   // text display tests
   display.clearDisplay();
   display.setTextSize(1);
@@ -110,31 +156,17 @@ void loop() {
   display.setCursor(32,10);
   display.println(barValue);
   display.setCursor(32,20);
-  
-  if (barValue < 200) {
-      Serial.println("You are sober.");
-      display.println("Good Citizen");
-  } else if (barValue >= 200 && barValue < 280) {
-      Serial.println("Alcohol detected");
-      display.println("Alcohol Detected");
-  } else if (barValue >= 280 && barValue < 350) {
-      Serial.println("Many drinks");
-      display.println("Many Drinks");
-  } else if (barValue >= 350 && barValue < 450) {
-      Serial.println("Serious Booze Up");
-      display.println("Booze Up");
-  } else if(barValue > 450) {
-      Serial.println("Drunk as fart!");
-      display.println("Drunk Fart");
-  }
-
+  display.println(msg);
   display.display();
 
+  if (stateChanged == 1) {
+    tweet(msg);
+  }
+}
 
-  // Internet Connectivity
-  //----------------------
-
-   unsigned long currentMillis = millis();
+void tweet(char msg[]) {
+  unsigned long currentMillis = millis();
+  
   if ( currentMillis - previousMillis > watchdog ) {
     previousMillis = currentMillis;
     WiFiClient client;
@@ -143,10 +175,7 @@ void loop() {
       Serial.println("connection failed");
       return;
     }
-    String url = "/ping?command=watchdog&uptime=";
-    url += String(millis());
-    url += "&ip=";
-    url += WiFi.localIP().toString();
+    String url = "/tweet?bal=" + String(barValue) + "&msg=" + msg;
    
     //This will send the request to the server
     client.print(String("GET ") + url + " HTTP/1.1\r\n" +
@@ -162,11 +191,10 @@ void loop() {
     }
 
     // Read all the lines of the reply from server and print them to Serial
-    while(client.available()){
+    while(client.available()) {
       String line = client.readStringUntil('\r');
       Serial.print(line);
     }
-  }
-
-  delay(1000);
+  }  
 }
+
