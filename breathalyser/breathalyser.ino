@@ -56,7 +56,7 @@ const int AOUTpin=0;//the AOUT pin of the alcohol sensor goes into analog pin A0
 const int DOUTpin=8;//the DOUT pin of the alcohol sensor goes into digital pin D8 of the arduino
 
 int barValue;
-int msgIndex;
+int stateIndex;
 int stateChanged;
 
 // Drunk State
@@ -106,7 +106,7 @@ void setup() {
   // Clear the buffer.
   display.clearDisplay();
 
-  msgIndex = -1;
+  stateIndex = -1;
   stateChanged = 0;
 }
 
@@ -118,24 +118,24 @@ void loop() {
   barValue = analogRead(AOUTpin);//reads the analaog value from the alcohol sensor's AOUT pin
   
   if (barValue < 200) {
-    stateChanged = (msgIndex != LEVEL0) ? 1 : 0;
-    msgIndex = LEVEL0;
+    stateChanged = (stateIndex != LEVEL0) ? 1 : 0;
+    stateIndex = LEVEL0;
     showMessage("Sober", stateChanged);
   } else if (barValue >= 200 && barValue < 280) {
-    stateChanged = (msgIndex != LEVEL1) ? 1 : 0;
-    msgIndex = LEVEL1;
+    stateChanged = (stateIndex != LEVEL1) ? 1 : 0;
+    stateIndex = LEVEL1;
     showMessage("Cheeky", stateChanged);
   } else if (barValue >= 280 && barValue < 350) {
-    stateChanged = (msgIndex != LEVEL2) ? 1 : 0;
-    msgIndex = LEVEL2;
+    stateChanged = (stateIndex != LEVEL2) ? 1 : 0;
+    stateIndex = LEVEL2;
     showMessage("Few Drinks", stateChanged);
   } else if (barValue >= 350 && barValue < 450) {
-    stateChanged = (msgIndex != LEVEL3) ? 1 : 0;
-    msgIndex = LEVEL3;
+    stateChanged = (stateIndex != LEVEL3) ? 1 : 0;
+    stateIndex = LEVEL3;
     showMessage("Boozed Up", stateChanged);
   } else if(barValue > 450) {
-    stateChanged = (msgIndex != LEVEL4) ? 1 : 0;
-    msgIndex = LEVEL4;
+    stateChanged = (stateIndex != LEVEL4) ? 1 : 0;
+    stateIndex = LEVEL4;
     showMessage("Flamable", stateChanged);
   }
 
