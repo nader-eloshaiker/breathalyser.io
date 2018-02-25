@@ -57,7 +57,7 @@ const int DOUTpin=8;//the DOUT pin of the alcohol sensor goes into digital pin D
 
 int barValue;
 int stateIndex;
-int stateChanged;
+bool stateChanged;
 
 // Drunk State
 //------------
@@ -107,7 +107,7 @@ void setup() {
   display.clearDisplay();
 
   stateIndex = -1;
-  stateChanged = 0;
+  stateChanged = false;
 }
 
 void loop() {
@@ -118,33 +118,33 @@ void loop() {
   barValue = analogRead(AOUTpin);//reads the analaog value from the alcohol sensor's AOUT pin
   
   if (barValue < 200) {
-    stateChanged = (stateIndex != LEVEL0) ? 1 : 0;
+    stateChanged = stateIndex != LEVEL0;
     stateIndex = LEVEL0;
     showMessage("Sober", stateChanged);
   } else if (barValue >= 200 && barValue < 280) {
-    stateChanged = (stateIndex != LEVEL1) ? 1 : 0;
+    stateChanged = stateIndex != LEVEL1;
     stateIndex = LEVEL1;
     showMessage("Cheeky", stateChanged);
   } else if (barValue >= 280 && barValue < 350) {
-    stateChanged = (stateIndex != LEVEL2) ? 1 : 0;
+    stateChanged = stateIndex != LEVEL2;
     stateIndex = LEVEL2;
     showMessage("Few Drinks", stateChanged);
   } else if (barValue >= 350 && barValue < 450) {
-    stateChanged = (stateIndex != LEVEL3) ? 1 : 0;
+    stateChanged = stateIndex != LEVEL3;
     stateIndex = LEVEL3;
     showMessage("Boozed Up", stateChanged);
   } else if(barValue > 450) {
-    stateChanged = (stateIndex != LEVEL4) ? 1 : 0;
+    stateChanged = stateIndex != LEVEL4;
     stateIndex = LEVEL4;
     showMessage("Flamable", stateChanged);
   }
 
-  stateChanged = 0;
+  stateChanged = false;
 
   delay(1000);
 }
 
-void showMessage(char msg[], int stateChanged) {
+void showMessage(char msg[], bool stateChanged) {
 //  Serial.println("[debug]: stateChanged - " + String(stateChanged));
   Serial.println(barValue);
   Serial.println(msg);
@@ -159,7 +159,7 @@ void showMessage(char msg[], int stateChanged) {
   display.println(msg);
   display.display();
 
-  if (stateChanged == 1) {
+  if (stateChanged) {
     tweet(msg);
   }
 }
